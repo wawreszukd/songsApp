@@ -1,17 +1,20 @@
-import axios from 'axios';
+import {clientId, clientSecret} from "../token-config.ts";
 
-
-const clientId = "98cf59a9784d477fb01224024e8d1551";
-const clientSecret = "bdc78c9a98d747d68907c80d305a8f9f";
 
 const getSpotifyToken = async () => {
-    const response = await axios.post('https://accounts.spotify.com/api/token', 'grant_type=client_credentials', {
+    const response = await fetch("https://accounts.spotify.com/api/token", {
+        method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': 'Basic ' + btoa(`${clientId}:${clientSecret}`)
-        }
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+            'grant_type': 'client_credentials',
+            'client_id': clientId,
+            'client_secret': clientSecret
+        })
     });
-    return response.data.access_token;
+    const data = await response.json();
+    return data.access_token;
 };
 
 export default getSpotifyToken;

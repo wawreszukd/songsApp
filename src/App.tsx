@@ -17,40 +17,54 @@ import React, {useEffect, useState} from "react";
 import GetToken from "./GetToken.ts";
 import Song from "./SongModel.ts";
 import Edit from "./Edit.tsx";
+import axios from "axios";
+import getToken from "./GetToken.ts";
+import SongItem from "./SongItem.tsx";
 
-const Songs = [new Song(0, "Song1", "https://www.youtube.com/watch?v=1"), new Song(1, "Song2", "https://www.youtube.com/watch?v=2"), new Song(2, "Song3", "https://www.youtube.com/watch?v=3")];
 
 export default function App() {
-    const [spotiToken, setSpotiToken] = useState('')
     const [inputValue, setInputValue] = useState('')
     const [editToggle, setEditToggle] = useState(false)
-    const [songToEdit, setSongToEdit] = useState(new Song(0, "", ""))
+    const [editId, setEditId] = useState('')
+    const [Songs, setSongs] = useState<Song[]>([])
 
 
-    useEffect(() => {
-        let token: string | null = null;
-        setInterval(async () => {
-            token = await GetToken();
-        }, 60 * 60 * 1000);
-        setSpotiToken(token!);
-    }, []);
 
+    const handleAddSong = async (e: React.MouseEvent<HTMLButtonElement>) => {
+        const songs: Song[] = [...Songs];
+        const spotiToken = await getToken();
+        const response = await fetch(`https://api.spotify.com/v1/search?q=${inputValue}&type=track&market=PL&limit=1`, {
+            headers: {
+                "Authorization": `Bearer ${spotiToken}`,
+            }
 
-    const handleAddSong = (e: React.MouseEvent<HTMLButtonElement>) => {
+        });
+        const data = await response.json();
+        const song = new Song(Songs.length, data.tracks.items[0].name, data.tracks.items[0].external_urls.spotify)
+        songs.push(song)
         setInputValue('')
+        setSongs(songs)
     }
     const handleEnterClick = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter") {
-            handleAddSong(e as any)
+            const addSongButton = document.querySelector("#add-song") as HTMLElement;
+            addSongButton?.click();
         }
     }
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value)
     }
-    const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
-        setSongToEdit(Songs[parseInt(e.target!.parentElement!.parentElement!.parentElement!.parentElement!.getAttribute("data-index")!)])
-        setEditToggle(true)
+    const handleEditButton = (e: React.MouseEvent<HTMLButtonElement>) => {
+        setEditToggle(!editToggle);
+        setEditId(((e.target as HTMLElement)!.parentNode!.parentNode!.parentNode!.parentNode!.parentElement!.id as number))
+            }
+    const handleDeleteCB = (id:string)=>{
+        const songs: Song[] = [...Songs]
+        songs.splice(+id, 1)
+        setSongs(songs)
     }
+
+
 
 
     return (<div className={"bg-gray-700 min-h-full justify-center pt-40 flex"}>
@@ -62,35 +76,16 @@ export default function App() {
             <hr className={"border-gray-950 mb-2"}/>
             <CardBody>
                 <Stack divider={<StackDivider/>} spacing='4'>
-                    {Songs.map((s) => {
-                        return <Box data-index={s.id}>
-                            <Text pt='2' fontSize='sm' className={"flex flex-row justify-between"}>
-                                <span className={"text-gray-300 text-sm"}><a target={"_blank"}
-                                                                             href={s.link}><LinkIcon></LinkIcon></a> {s.name}
-                                </span>
-                                { editToggle ? <></>: <div>
-                                    <Button
-                                        className={"mr-3"}
-                                        onClick={handleEdit}
-                                    >
-                                        <SettingsIcon
-                                            color={"white"}
-                                        >
-                                        </SettingsIcon>
-                                    </Button>
-                                    <Button>
-                                        <CloseIcon color={"red"}></CloseIcon>
-                                    </Button>
-                                </div>}
-                            </Text>
-                        </Box>
+                    {Songs.map((s, i) => {
+                        return <SongItem iVal={i.toString()} s={s} handleEditButton={handleEditButton} editToggle={editToggle} handleDeleteCB={handleDeleteCB} ></SongItem>
+
                     })}
 
                 </Stack>
                 <hr className={"border-gray-950 mt-4"}/>
 
 
-                {editToggle ? <Edit cb={setEditToggle} song={songToEdit}></Edit> : <HStack spacing={3} className={"mt-3"}>
+                {editToggle ? <Edit cb={setEditToggle} songId={editId} songs={Songs}></Edit> : <HStack spacing={3} className={"mt-3"}>
                     <Input variant="flushed"
                            className={"=2 h-8  mt-0  class=\"bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500\""}
                            width={"auto"}

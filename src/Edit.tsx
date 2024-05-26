@@ -1,16 +1,28 @@
 import Song from "./SongModel.ts";
 import {Button, ButtonGroup, HStack, Input} from "@chakra-ui/react";
 import React from "react";
-const Edit = (props: {song: Song, cb: (arg0: boolean) => void} )=>{
-    const [inputValue, setInputValue] = React.useState(props.song.name)
+import SongItem from "./SongItem.tsx";
+import getToken from "./GetToken.ts";
+const Edit = (props: { songId: string, cb: (arg0: boolean) => void, songs:Song[] })=>{
+    const [inputValue, setInputValue] = React.useState('')
 
-    const handleEditSong = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const handleEditSong = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
+        const spotiToken = await getToken();
+        const response = await fetch(`https://api.spotify.com/v1/search?q=${inputValue}&type=track&market=PL&limit=1`, {
+            headers: {
+                "Authorization": `Bearer ${spotiToken}`,
+            }
+
+        });
+        const data = await response.json();
+        const song = new Song(+props.songId, data.tracks.items[0].name, data.tracks.items[0].external_urls.spotify)
+        props.songs[+props.songId] = song;
         setInputValue('')
         props.cb(false);
     }
     const handleEnterClick = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter") {
-            handleEditSong(e as any)
+            handleEditSong(e);
         }
     }
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
