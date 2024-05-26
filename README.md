@@ -11,4 +11,4 @@ This project is a simple CRUD of songs list with interaction with Spotify API. T
 - [x] Search for a song on Spotify
 - [x] Add a song from Spotify to the list
 - [ ] Add tests
-- [ ] Redux]
+- [ ] Redux
