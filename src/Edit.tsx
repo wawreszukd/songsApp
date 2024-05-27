@@ -1,8 +1,10 @@
 import Song from "./SongModel.ts";
 import {Button, ButtonGroup, HStack, Input} from "@chakra-ui/react";
 import React from "react";
-
+import {useDispatch} from "react-redux";
 import getToken from "./GetToken.ts";
+
+import {updateSong} from "./state/songs/songSlice.ts";
 
 /**
  * Edit component for editing a song
@@ -16,6 +18,7 @@ const Edit = (props: { songId: string, cb: (arg0: boolean) => void, songs:Song[]
     // State variable for the input value
     const [inputValue, setInputValue] = React.useState('')
 
+    const dispatch = useDispatch();
 
     /**
      * Handles editing a song
@@ -29,8 +32,8 @@ const Edit = (props: { songId: string, cb: (arg0: boolean) => void, songs:Song[]
 
         });
         const data = await response.json();
-        const song = new Song(+props.songId, data.tracks.items[0].name, data.tracks.items[0].external_urls.spotify)
-        props.songs[+props.songId] = song;
+        const song = {"id":+props.songId, "name":data.tracks.items[0].name, "link":data.tracks.items[0].external_urls.spotify}
+        dispatch(updateSong(song));
         setInputValue('')
         props.cb(false);
     }

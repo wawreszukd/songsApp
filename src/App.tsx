@@ -13,10 +13,13 @@ import {
 
 import React, { useState} from "react";
 
-import Song from "./SongModel.ts";
+
 import Edit from "./Edit.tsx";
 import getToken from "./GetToken.ts";
 import SongItem from "./SongItem.tsx";
+import {useDispatch, useSelector} from "react-redux";
+import {RootState} from "./state/store.ts";
+import {addSong, deleteSong} from "./state/songs/songSlice.ts";
 
 /**
  * Main App component
@@ -27,15 +30,15 @@ export default function App() {
     const [inputValue, setInputValue] = useState('')
     const [editToggle, setEditToggle] = useState(false)
     const [editId, setEditId] = useState('')
-    const [Songs, setSongs] = useState<Song[]>([])
 
+    const Songs = useSelector((state: RootState) => state.songs.songs);
+    const dispatch = useDispatch();
 
     /**
      * Handles adding a song to the list
      */
     const handleAddSong = async () => {
         // Callback to add song to the list
-        const songs: Song[] = [...Songs];
         const spotiToken = await getToken();
         const response = await fetch(`https://api.spotify.com/v1/search?q=${inputValue}&type=track&market=PL&limit=1`, {
             headers: {
@@ -44,10 +47,9 @@ export default function App() {
 
         });
         const data = await response.json();
-        const song = new Song(Songs.length, data.tracks.items[0].name, data.tracks.items[0].external_urls.spotify)
-        songs.push(song)
+        const song = {'name':data.tracks.items[0].name, 'url': data.tracks.items[0].external_urls.spotify}
         setInputValue('')
-        setSongs(songs)
+        dispatch(addSong(song));
     }
     /**
      * Handles the Enter key press event
@@ -82,9 +84,7 @@ export default function App() {
      */
     const handleDeleteCB = (id:string)=>{
         // Callback to delete song from SongItem component
-        const songs: Song[] = [...Songs]
-        songs.splice(+id, 1)
-        setSongs(songs)
+        dispatch(deleteSong(id));
     }
 
 
