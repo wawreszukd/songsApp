@@ -7,8 +7,8 @@ const SongItem = (props:{handleDeleteCB:(id:string)=>void ,iVal:string, handleEd
     const handleDelete = ()=>{
         props.handleDeleteCB(props.iVal)
     }
-    return (<Box key={props.iVal} id={props.iVal}>
-        <Text pt='2' fontSize='sm' className={"flex flex-row justify-between"}>
+    return (<Box  id={props.iVal}>
+        <Text  pt='2' fontSize='sm' className={"flex flex-row justify-between"}>
                                 <span className={"text-gray-300 text-sm"}><a target={"_blank"}
                                                                              href={props.s.link}><LinkIcon></LinkIcon></a> {props.s.name}
                                 </span>

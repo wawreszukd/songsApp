@@ -10,27 +10,33 @@ import {
     Input,
     Stack,
     StackDivider,
-    Text,
 } from "@chakra-ui/react";
-import {CloseIcon, LinkIcon, SettingsIcon} from "@chakra-ui/icons";
-import React, {useEffect, useState} from "react";
-import GetToken from "./GetToken.ts";
+
+import React, { useState} from "react";
+
 import Song from "./SongModel.ts";
 import Edit from "./Edit.tsx";
-import axios from "axios";
 import getToken from "./GetToken.ts";
 import SongItem from "./SongItem.tsx";
 
-
+/**
+ * Main App component
+ * @returns {JSX.Element} The rendered App component
+ */
 export default function App() {
+    // State variables
     const [inputValue, setInputValue] = useState('')
     const [editToggle, setEditToggle] = useState(false)
     const [editId, setEditId] = useState('')
     const [Songs, setSongs] = useState<Song[]>([])
 
 
-
-    const handleAddSong = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    /**
+     * Handles adding a song to the list
+     * @param {React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>} e - The event object
+     */
+    const handleAddSong = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
+        // Callback to add song to the list
         const songs: Song[] = [...Songs];
         const spotiToken = await getToken();
         const response = await fetch(`https://api.spotify.com/v1/search?q=${inputValue}&type=track&market=PL&limit=1`, {
@@ -45,20 +51,39 @@ export default function App() {
         setInputValue('')
         setSongs(songs)
     }
+    /**
+     * Handles the Enter key press event
+     * @param {React.KeyboardEvent<HTMLInputElement>} e - The event object
+     */
     const handleEnterClick = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        // Callback to handle enter key press
         if (e.key === "Enter") {
-            const addSongButton = document.querySelector("#add-song") as HTMLElement;
-            addSongButton?.click();
+            handleAddSong(e)
         }
     }
+    /**
+     * Handles the input change event
+     * @param {React.ChangeEvent<HTMLInputElement>} e - The event object
+     */
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        // Callback to set input value
         setInputValue(e.target.value)
     }
+    /**
+     * Handles the edit button click event
+     * @param {React.MouseEvent<HTMLButtonElement>} e - The event object
+     */
     const handleEditButton = (e: React.MouseEvent<HTMLButtonElement>) => {
+        // Callback to edit song from SongItem component
         setEditToggle(!editToggle);
-        setEditId(((e.target as HTMLElement)!.parentNode!.parentNode!.parentNode!.parentNode!.parentElement!.id as number))
-            }
+        setEditId(+((e.target as HTMLElement)!.parentNode!.parentNode!.parentNode!.parentNode!.parentElement!.id))
+    }
+    /**
+     * Handles deleting a song from the list
+     * @param {string} id - The ID of the song to delete
+     */
     const handleDeleteCB = (id:string)=>{
+        // Callback to delete song from SongItem component
         const songs: Song[] = [...Songs]
         songs.splice(+id, 1)
         setSongs(songs)
@@ -66,7 +91,7 @@ export default function App() {
 
 
 
-
+    // Render the App component
     return (<div className={"bg-gray-700 min-h-full justify-center pt-40 flex"}>
         <Card
             className={" h-fit max-w-fit bg-gradient-to-br from-gray-500 to-gray-600 border-gray-900 border-2 shadow-2xl shadow-gray-900 rounded-2xl p-4"}>
@@ -77,7 +102,7 @@ export default function App() {
             <CardBody>
                 <Stack divider={<StackDivider/>} spacing='4'>
                     {Songs.map((s, i) => {
-                        return <SongItem iVal={i.toString()} s={s} handleEditButton={handleEditButton} editToggle={editToggle} handleDeleteCB={handleDeleteCB} ></SongItem>
+                        return <SongItem iVal={i.toString()} s={s} handleEditButton={handleEditButton} editToggle={editToggle} handleDeleteCB={handleDeleteCB} key={i}></SongItem>
 
                     })}
 
