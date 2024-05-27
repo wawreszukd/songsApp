@@ -1,7 +1,7 @@
 import Song from "./SongModel.ts";
 import {Button, ButtonGroup, HStack, Input} from "@chakra-ui/react";
 import React from "react";
-import SongItem from "./SongItem.tsx";
+
 import getToken from "./GetToken.ts";
 
 /**
@@ -19,9 +19,8 @@ const Edit = (props: { songId: string, cb: (arg0: boolean) => void, songs:Song[]
 
     /**
      * Handles editing a song
-     * @param {React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>} e - The event object
      */
-    const handleEditSong = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
+    const handleEditSong = async () => {
         const spotiToken = await getToken();
         const response = await fetch(`https://api.spotify.com/v1/search?q=${inputValue}&type=track&market=PL&limit=1`, {
             headers: {
@@ -41,7 +40,7 @@ const Edit = (props: { songId: string, cb: (arg0: boolean) => void, songs:Song[]
      */
     const handleEnterClick = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter") {
-            handleEditSong(e);
+            handleEditSong();
         }
     }
     /**
