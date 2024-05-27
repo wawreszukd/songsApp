@@ -1,5 +1,4 @@
 import {
-    Box,
     Button,
     ButtonGroup,
     Card,
@@ -33,9 +32,8 @@ export default function App() {
 
     /**
      * Handles adding a song to the list
-     * @param {React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>} e - The event object
      */
-    const handleAddSong = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
+    const handleAddSong = async () => {
         // Callback to add song to the list
         const songs: Song[] = [...Songs];
         const spotiToken = await getToken();
@@ -58,7 +56,7 @@ export default function App() {
     const handleEnterClick = (e: React.KeyboardEvent<HTMLInputElement>) => {
         // Callback to handle enter key press
         if (e.key === "Enter") {
-            handleAddSong(e)
+            handleAddSong()
         }
     }
     /**
@@ -76,7 +74,7 @@ export default function App() {
     const handleEditButton = (e: React.MouseEvent<HTMLButtonElement>) => {
         // Callback to edit song from SongItem component
         setEditToggle(!editToggle);
-        setEditId(+((e.target as HTMLElement)!.parentNode!.parentNode!.parentNode!.parentNode!.parentElement!.id))
+        setEditId(((e.target as HTMLElement)!.parentNode!.parentNode!.parentNode!.parentNode!.parentElement!.id))
     }
     /**
      * Handles deleting a song from the list
